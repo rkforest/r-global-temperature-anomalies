@@ -1,0 +1,1 @@
+This repository will contain the R scripts used to analyze and visualize global temperature anomalies downloaded from the NASA Goddard Institute for Space Studies web site:  https://data.giss.nasa.gov/gistemp/
