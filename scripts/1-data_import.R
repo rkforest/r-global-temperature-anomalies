@@ -1,7 +1,7 @@
 library(tidyverse)
 
-save_csv_dir <- file.path("data", "csv")
-save_rds_dir <- file.path("data", "rds")
+save_csv_dir <- file.path("data", "raw-data", "csv")
+save_rds_dir <- file.path("data", "raw-data", "rds")
 
 urls <- c("https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv",
           "https://data.giss.nasa.gov/gistemp/tabledata_v4/NH.Ts+dSST.csv",
@@ -9,7 +9,6 @@ urls <- c("https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv",
           "https://data.giss.nasa.gov/gistemp/tabledata_v4/ZonAnn.Ts+dSST.csv"
           )
 skip_header_recs <- c(1, 1, 1, 0)
-data_ids <- c('GLB','NH','SH')
 
 get_df <- function(url, skip_header_recs) {
   df <- read_csv(file=url,
@@ -25,26 +24,25 @@ for (i in 1:length(urls)) {
  df_list[[i]] <- df
 }
 
-# save raw data into csv directory
+# build rds file name
+rds_file_names <- character()
 for (i in 1:length(df_list)) {
-  file_path <- file.path(save_csv_dir, basename(urls[i]))
-  df <- df_list[[i]]
-  write_csv(df, file_path)
+  base_name <- basename(urls[i])
+  file_without_suffix <- substr(base_name,1,nchar(base_name)-4)
+  file_with_rds_suffix <- paste(file_without_suffix, ".rds", sep = "")
+  rds_file_names <- c(rds_file_names,file_with_rds_suffix)
 }
 
-# add Id to the global, northern, and southern data frames before combining
-for (i in 1:3) {
+for (i in 1:length(df_list)) {
   df <- df_list[[i]]
-  df$Id = data_ids[i]
-  df_list[[i]] <- df
+  base_name <- basename(urls[i])
+  
+  # save csv data into csv directory 
+  csv_file_path <- file.path(save_csv_dir, base_name)
+  write_csv(df, csv_file_path)
+  
+  # save rds data into rds directory
+  rds_file_path <- file.path(save_rds_dir, rds_file_names[i])
+  write_rds(df, rds_file_path)
 }
-global_df <- dplyr::bind_rows (df_list[[1]],
-                               df_list[[2]],
-                               df_list[[3]])
-# save rds files
-file_path = file.path(save_rds_dir, "global_anomalies.rds")
-write_rds(global_df, file_path)
 
-zonal_df <- df_list[[4]]
-file_path = file.path(save_rds_dir, "zonal_anomalies.rds")
-write_rds(zonal_df, file_path)
