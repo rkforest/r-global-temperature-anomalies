@@ -9,22 +9,16 @@ library(tidyverse)
 library(RColorBrewer)
 library(viridis)
 
-data_dir <- file.path("data", "rds")
+data_dir <- file.path("data", "2-transformed-data")
 
-# read global annual rda file
-file_path <- file.path(data_dir, "global_annual.rds")
-global_annual_df <- read_rds(file_path) 
-glimpse(global_annual_df)
-levels(global_annual_df$Id)
-
-# read global monthly rda file
-file_path <- file.path(data_dir, "global_monthly.rds")
+# read global monthly rds file
+file_path <- file.path(data_dir, "global_monthly_df.rds")
 global_monthly_df <- read_rds(file_path) 
 glimpse(global_monthly_df)
-levels(global_monthly_df$Id)
+tail(global_monthly_df)
 
 # global monthly scatter plot
-plot_data <- global_monthly_df |> filter(Id == "GLB")
+plot_data <- global_monthly_df |> filter(Area == "G")
 
 ggplot(plot_data,
        aes(x=Year, y = Anomaly)) +
@@ -41,19 +35,21 @@ ggplot(plot_data,
     color = "Temperature\nAnomaly\n°C"
   ) 
 
-# global monthly histogram last 30 years
-plot_data <- global_monthly_df |> filter(Id == "GLB") |> filter(Year > 1993)
+# global monthly histogram by 30 year climate period
+plot_data <- global_monthly_df |> filter(Area == "G") 
 ggplot(plot_data,
-       aes(x=Anomaly)) +
-       geom_histogram(binwidth=0.1,color="darkblue",fill="lightblue") +
+       aes(x=Anomaly,fill=Climate)) +
+       geom_histogram(binwidth=0.1, alpha=0.5) +
   labs(
     title = "Global Temperature Anomalies",
-    subtitle = "Histogram of Monthly Values\nMost recent 30 years",
+    subtitle = "Monthly Anomalies by Climate Period",
+    x = "Temperature Anomaly (°C)",
+    y = "Count",
+    fill = "30 Year\nClimate\nPeriod"
   ) 
 
-
 # hemisphere plots: last 10 years, boxplot and density plot
-plot_data <- global_annual_df |> filter(Id %in% c("NH","SH")) |> filter(Year > 2013)
+plot_data <- global_annual_df |> filter(Id %in% c("N","S")) |> filter(Year > 2013)
 
 ggplot(plot_data,
        aes(x = Id, y = Anomaly, color = Id)) +
