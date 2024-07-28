@@ -1,7 +1,6 @@
 library(tidyverse)
 
 # to do:
-# create separate zonal dfs for 3 zones version and 8 zones version
 # ??? combine two hemispheres into one 
 
 raw_data_dir <- file.path("data", "1-raw-data", "rds")
@@ -113,13 +112,14 @@ southern_monthly_df <- fn_add_seasons_sh(southern_monthly_df)
 
 
 # zonal annual anomalies
+# create separate zonal dfs for 3 zones version and 8 zones version
 #   create vector of zone column names
 #   tidy to 1 named column and 1 values column
 #   remove missing values
 #   change zone column type to factor
-z_col_names = colnames(df4[,5:15]) 
-zonal_df <- df4 |>
-  pivot_longer(cols = all_of(z_col_names),
+z_col_names = colnames(df4[,5:7]) 
+zonal_x3_df <- df4 |>
+  pivot_longer(cols =  all_of(z_col_names),
                names_to = "Zone",
                values_to = "Anomaly",
                values_drop_na = TRUE) |> 
@@ -134,9 +134,29 @@ zonal_df <- df4 |>
   mutate(Decade= as.integer(Year - (Year %% 10) + 10)) |> 
   mutate(Climate_Period = factor(Climate, labels=climate_levels)) |> 
   select(Zone, Climate, Decade, Year, Anomaly)
-zonal_df$Zone <- factor(zonal_df$Zone,
-                                levels=zone_x11_levels)
+zonal_x3_df$Zone <- factor(zonal_x3_df$Zone,
+                                levels=zone_x3_levels)
 
+z_col_names = colnames(df4[,8:15]) 
+zonal_x8_df <- df4 |>
+  pivot_longer(cols =  all_of(z_col_names),
+               names_to = "Zone",
+               values_to = "Anomaly",
+               values_drop_na = TRUE) |> 
+  mutate(Climate = NA) |>
+  mutate(Climate = case_when(
+    Year <= 1910 ~ climate_levels[1],
+    Year <= 1940 ~ climate_levels[2],
+    Year <= 1970 ~ climate_levels[3],
+    Year <= 2000 ~ climate_levels[4],
+    Year <= 2030 ~ climate_levels[5])) |>
+  mutate(Year = as.integer(Year)) |>
+  mutate(Decade= as.integer(Year - (Year %% 10) + 10)) |> 
+  mutate(Climate_Period = factor(Climate, labels=climate_levels)) |> 
+  select(Zone, Climate, Decade, Year, Anomaly)
+zonal_x8_df$Zone <- factor(zonal_x8_df$Zone,
+                           levels=zone_x8_levels)
+                        
 # save rds data into tidy data directory
 rds_file_path <- file.path(transformed_data_dir, "global_monthly_df.rds")
 write_rds(global_monthly_df, rds_file_path)
@@ -145,6 +165,8 @@ write_rds(northern_monthly_df, rds_file_path)
 rds_file_path <- file.path(transformed_data_dir, "southern_monthly_df.rds")
 write_rds(southern_monthly_df, rds_file_path)
 
-rds_file_path <- file.path(transformed_data_dir, "zonal_annual_df.rds")
-write_rds(zonal_df, rds_file_path)
+rds_file_path <- file.path(transformed_data_dir, "zonal_3x_annual_df.rds")
+write_rds(zonal_x3_df, rds_file_path)
 
+rds_file_path <- file.path(transformed_data_dir, "zonal_8x_annual_df.rds")
+write_rds(zonal_x8_df, rds_file_path)

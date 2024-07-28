@@ -9,8 +9,10 @@ northern_monthly_df <- read_rds(file_path)
 file_path <- file.path(transformed_data_dir, "southern_monthly_df.rds")
 southern_monthly_df <- read_rds(file_path)
 
-file_path <- file.path(transformed_data_dir, "zonal_annual_df.rds")
-zonal_annual_df <- read_rds(file_path)
+file_path <- file.path(transformed_data_dir, "zonal_3x_annual_df.rds")
+zonal_3x_annual_df <- read_rds(file_path)
+file_path <- file.path(transformed_data_dir, "zonal_8x_annual_df.rds")
+zonal_8x_annual_df <- read_rds(file_path)
 
 head(global_monthly_df,1)
 tail(global_monthly_df,1)
@@ -43,16 +45,33 @@ head(southern_monthly_df,1)
 tail(southern_monthly_df,1)
 
 northern_monthly_df |> 
-  group_by(Month) |>
+  group_by(Season) |>
   summarize(
     avg_anomaly = mean(Anomaly),
     count = n()
   )
 
-head(zonal_annual_df,1)
-tail(zonal_annual_df,1)
+southern_monthly_df |> 
+  group_by(Season) |>
+  summarize(
+    avg_anomaly = mean(Anomaly),
+    count = n()
+  )
 
-zonal_annual_df |> 
+head(zonal_3x_annual_df,1)
+tail(zonal_3x_annual_df,1)
+head(zonal_8x_annual_df,1)
+tail(zonal_8x_annual_df,1)
+
+zonal_3x_annual_df |> 
+  group_by(Zone) |>
+  summarize(
+    avg_anomaly = mean(Anomaly),
+    count = n()
+  )
+
+
+zonal_8x_annual_df |> 
   group_by(Zone) |>
   summarize(
     avg_anomaly = mean(Anomaly),
