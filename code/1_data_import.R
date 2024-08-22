@@ -12,8 +12,9 @@ status <- file.remove(f)
 # download and save geographic data 
 
 url_netcdf = "https://data.giss.nasa.gov/pub/gistemp/"
-file_names_netcdf <- c("gistemp1200_GHCNv4_ERSSTv5.nc",
-                       "gistemp250_GHCNv4.nc")
+# file_names_netcdf <- c("gistemp1200_GHCNv4_ERSSTv5.nc",
+#                        "gistemp250_GHCNv4.nc")
+file_names_netcdf <- c("gistemp1200_GHCNv4_ERSSTv5.nc")
 
 for (i in 1:length(file_names_netcdf)) {
   zipped_file_name = paste(file_names_netcdf[i],".gz", sep = "")
